@@ -46,12 +46,23 @@ public class MovementService {
             if (!book.isAvailable()) {
                 throw new RuntimeException("Book is not available");
             }
+
             book.setAvailableCount(book.getAvailableCount() - 1);
+
             if (book.getAvailableCount() == 0) {
                 book.setAvailable(false);
             }
+
         } else {
+            boolean hasBorrowed = movementRepository
+                    .existsByLectorAndBookAndType(lector, book, MovementType.BORROWING);
+
+            if (!hasBorrowed) {
+                throw new RuntimeException("This lector has not borrowed this book");
+            }
+
             book.setAvailableCount(book.getAvailableCount() + 1);
+            book.setAvailable(true);
         }
 
         bookRepository.save(book);
